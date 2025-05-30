@@ -20,8 +20,8 @@ export function DashboardHeader() {
   return (
     <header className="border-b">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/dashboard" className="text-xl font-bold">
-          RAG Chat
+        <Link href="/chat" className="text-xl font-bold">
+          RAGify
         </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle />

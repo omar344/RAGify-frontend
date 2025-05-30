@@ -7,7 +7,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between">
-          <div className="text-xl font-bold">RAG Chat</div>
+          <div className="text-xl font-bold">RAGify</div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link href="/login">
@@ -22,7 +22,7 @@ export default function Home() {
       <main className="flex-1">
         <section className="container py-24 md:py-32 space-y-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">Welcome to RAG Chat</h1>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">Welcome to RAGify</h1>
             <p className="mt-6 text-lg md:text-xl text-muted-foreground">
               Upload your documents and chat with them using our advanced AI system.
             </p>
@@ -34,7 +34,7 @@ export default function Home() {
               </Link>
               <Link href="/login">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Login to Your Account
+                  Login
                 </Button>
               </Link>
             </div>
@@ -44,7 +44,7 @@ export default function Home() {
       <footer className="border-t py-6">
         <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
           <p className="text-center text-sm text-muted-foreground md:text-left">
-            &copy; {new Date().getFullYear()} RAG Chat. All rights reserved.
+            &copy; {new Date().getFullYear()} RAGify. All rights reserved.
           </p>
         </div>
       </footer>

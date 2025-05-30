@@ -29,7 +29,7 @@ export default function LoginPage() {
     try {
       await login(identifier, password)
       console.log("Login successful, redirecting...")
-      router.push("/dashboard")
+      router.push("/chat")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to login. Please try again.")
     } finally {
@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link href="/" className="absolute left-4 top-4 md:left-8 md:top-8 text-lg font-bold">
-        RAG Chat
+        RAGify
       </Link>
       <Card className="w-full max-w-md">
         <CardHeader>

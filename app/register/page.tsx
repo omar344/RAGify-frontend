@@ -40,7 +40,7 @@ export default function RegisterPage() {
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link href="/" className="absolute left-4 top-4 md:left-8 md:top-8 text-lg font-bold">
-        RAG Chat
+        RAGify
       </Link>
       <Card className="w-full max-w-md">
         <CardHeader>

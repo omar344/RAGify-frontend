@@ -36,13 +36,17 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <DashboardHeader />
-      <main className="flex-1 container py-6">
+      {/* Fixed header */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-background border-b">
+        <DashboardHeader />
+      </div>
+      {/* Main content with padding to avoid header overlap */}
+      <main className="flex-1 container py-6 pt-16">
         {!projectId ? (
           <div className="max-w-3xl mx-auto">
             <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold mb-2">Welcome to your Dashboard</h1>
-              <p className="text-muted-foreground">Please upload a file to start chatting with your documents</p>
+              <h1 className="text-3xl font-bold mb-2">Please upload a file to start chatting</h1>
+              <p className="text-muted-foreground">supported files are: .pdf</p>
             </div>
             <FileUploader />
           </div>
