@@ -41,10 +41,33 @@ export function ChatInterface() {
   const { logout } = useAuth()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([])
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const token = localStorage.getItem("access_token")
+      if (!token) return
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/rag/list_projects`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setProjects(data.map((p: any) => ({
+            id: p.project_id,
+            name: p.file_name
+          })))
+        }
+      } catch (err) {
+        // Optionally handle error
+      }
+    }
+    fetchProjects()
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -64,7 +87,7 @@ export function ChatInterface() {
     setInput("")
     setIsLoading(true)
     setIsThinking(true)
-    setStreamedMessage("")
+    setStreamedMessage(null) // <-- Ensure this is null before fetch
     setError("")
 
     try {
@@ -100,7 +123,7 @@ export function ChatInterface() {
       for (let i = 0; i < answer.length; i++) {
         current += answer[i]
         setStreamedMessage(current)
-        await new Promise((res) => setTimeout(res, 20)) // 15ms per character
+        await new Promise((res) => setTimeout(res, 20))
       }
 
       const aiMessage: Message = {
@@ -167,7 +190,19 @@ export function ChatInterface() {
 
         if (data.project_id && data.project_id !== projectId) {
           setProjectId(data.project_id)
-          console.log("Project ID updated:", data.project_id)
+          setProjects(prev =>
+            prev.some(p => p.id === data.project_id)
+              ? prev
+              : [...prev, { id: data.project_id, name: file.name }]
+          )
+          setMessages([
+            {
+              id: Date.now().toString(),
+              content: `You can now ask me about "${file.name}".`,
+              sender: "bot",
+              timestamp: new Date(),
+            },
+          ])
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to upload file")
@@ -192,7 +227,38 @@ export function ChatInterface() {
       <Card className="flex-1 flex flex-col">
         <CardContent className="flex-1 p-4 flex flex-col">
 
+          {/* Sticky file selector */}
+          <div className="z-10 sticky top-0 bg-background pb-4 flex items-center gap-2">
+            <label htmlFor="project-select" className="font-medium text-sm">
+              Select file:
+            </label>
+            <select
+              id="project-select"
+              className="border rounded px-3 py-2 bg-background text-foreground"
+              value={projectId || ""}
+              onChange={e => {
+                const selected = projects.find(p => p.id === e.target.value)
+                setProjectId(selected?.id || "")
+                setMessages([
+                  {
+                    id: Date.now().toString(),
+                    content: selected
+                      ? `Ready! You can now ask me about "${selected.name}".`
+                      : "Please select a file to start.",
+                    sender: "bot",
+                    timestamp: new Date(),
+                  },
+                ])
+              }}
+            >
+              <option value="">-- Select a file --</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
 
+          {/* Scrollable chat area */}
           <ScrollArea className="flex-1 pr-4">
             <div className="space-y-4 py-4">
               {messages.length === 0 ? (
@@ -238,6 +304,21 @@ export function ChatInterface() {
                 ))
               )}
 
+              {isThinking && streamedMessage === null && (
+                <div className="flex justify-start">
+                  <div className="flex items-start gap-2 max-w-[80%] flex-row">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                      <Bot className="h-5 w-5" />
+                    </div>
+                    <div className="rounded-lg px-4 py-2 bg-muted flex items-center min-h-[2.5rem]">
+                      {/* Spinning wheel */}
+                      <span className="animate-spin inline-block h-5 w-5 border-2 border-primary border-t-transparent rounded-full mr-2" />
+                      <span className="text-muted-foreground">Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {isThinking && streamedMessage !== null && (
                 <div className="flex justify-start">
                   <div className="flex items-start gap-2 max-w-[80%] flex-row">
@@ -256,15 +337,9 @@ export function ChatInterface() {
                 </div>
               )}
 
-              {isUploading && (
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
-                  <span className="text-sm text-muted-foreground">Uploading file...</span>
-                </div>
-              )}
-
               <div ref={messagesEndRef} />
             </div>
+
           </ScrollArea>
 
           {error && (
@@ -273,7 +348,14 @@ export function ChatInterface() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
+          {isUploading && (
+            <div className="flex items-center gap-2 mb-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
+              <span className="text-sm text-muted-foreground">Uploading file...</span>
+            </div>
+          )}
+
           <div className="pt-4 flex gap-2">
             <Button
               variant="outline"
@@ -304,9 +386,16 @@ export function ChatInterface() {
               ref={fileInputRef}
               className="hidden"
               onChange={handleFileUpload}
-              accept=".pdf,.txt,.doc,.docx"
+              accept=".pdf,.txt,.png,.jpg"
             />
           </div>
+
+          {isUploading && (
+            <div className="flex items-center gap-2 mt-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
+              <span className="text-sm text-muted-foreground">Uploading file...</span>
+            </div>
+          )}
 
         </CardContent>
       </Card>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("")
@@ -28,8 +30,26 @@ export default function LoginPage() {
 
     try {
       await login(identifier, password)
-      console.log("Login successful, redirecting...")
-      router.push("/chat")
+      const token = localStorage.getItem("access_token")
+      if (token) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/v1/rag/list_projects`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (res.ok) {
+            const data = await res.json()
+            if (Array.isArray(data) && data.length > 0) {
+              router.push("/chat")
+            } else {
+              router.push("/upload") 
+            }
+          } else {
+            setError("Failed to fetch projects. Please try again.")
+          }
+        } catch (err) {
+          setError("An error occurred while fetching projects.")
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to login. Please try again.")
     } finally {
@@ -60,7 +80,7 @@ export default function LoginPage() {
               <Input
                 id="identifier"
                 type="text"
-                placeholder="name@example.com or username"
+                placeholder="Enter your email or username"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
@@ -73,6 +93,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
