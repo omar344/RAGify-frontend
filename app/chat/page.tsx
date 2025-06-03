@@ -42,17 +42,7 @@ export default function DashboardPage() {
       </div>
       {/* Main content with padding to avoid header overlap */}
       <main className="flex-1 container py-6 pt-16">
-        {!projectId ? (
-          <div className="max-w-3xl mx-auto">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold mb-2">Please upload a file to start chatting</h1>
-              <p className="text-muted-foreground">supported files are: .pdf</p>
-            </div>
-            <FileUploader />
-          </div>
-        ) : (
-          <ChatInterface />
-        )}
+        <ChatInterface />
       </main>
     </div>
   )

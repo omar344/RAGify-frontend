@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Upload, FileText, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useRouter } from "next/navigation"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -16,6 +17,7 @@ export function FileUploader() {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState("")
   const { setProjectId } = useProject()
+  const router = useRouter()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -62,6 +64,7 @@ export function FileUploader() {
 
       const data = await response.json()
       setProjectId(data.project_id)
+      router.push("/chat")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload file")
     } finally {

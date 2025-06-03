@@ -63,11 +63,26 @@ export function ChatInterface() {
           })))
         }
       } catch (err) {
-        // Optionally handle error
+       
       }
     }
     fetchProjects()
   }, [])
+
+  useEffect(() => {
+    if (projects.length > 0 && !projectId) {
+      setProjectId(projects[0].id)
+      setMessages([
+        {
+          id: Date.now().toString(),
+          content: `Ready! You can now ask me about "${projects[0].name}".`,
+          sender: "bot",
+          timestamp: new Date(),
+        },
+      ])
+    }
+    // Only run when projects or projectId changes
+  }, [projects, projectId, setProjectId])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -389,14 +404,7 @@ export function ChatInterface() {
               accept=".pdf,.txt,.png,.jpg"
             />
           </div>
-
-          {isUploading && (
-            <div className="flex items-center gap-2 mt-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
-              <span className="text-sm text-muted-foreground">Uploading file...</span>
-            </div>
-          )}
-
+          
         </CardContent>
       </Card>
     </div>
