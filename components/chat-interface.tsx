@@ -9,9 +9,16 @@ import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Send, Paperclip, User, Bot, AlertCircle } from "lucide-react"
+import { Send, Paperclip, User, Bot, AlertCircle, FileText } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -243,16 +250,15 @@ export function ChatInterface() {
         <CardContent className="flex-1 p-4 flex flex-col">
 
           {/* Sticky file selector */}
-          <div className="z-10 sticky top-0 bg-background pb-4 flex items-center gap-2">
-            <label htmlFor="project-select" className="font-medium text-sm">
-              Select file:
-            </label>
-            <select
-              id="project-select"
-              className="border rounded px-3 py-2 bg-background text-foreground"
+          <div className="z-10 sticky top-0 bg-background pb-4 flex items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <FileText className="h-4 w-4" />
+              <span className="font-medium">Active file:</span>
+            </div>
+            <Select
               value={projectId || ""}
-              onChange={e => {
-                const selected = projects.find(p => p.id === e.target.value)
+              onValueChange={(value) => {
+                const selected = projects.find(p => p.id === value)
                 setProjectId(selected?.id || "")
                 setMessages([
                   {
@@ -266,11 +272,17 @@ export function ChatInterface() {
                 ])
               }}
             >
-              <option value="">-- Select a file --</option>
-              {projects.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Select a file to analyze" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map(p => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Scrollable chat area */}
